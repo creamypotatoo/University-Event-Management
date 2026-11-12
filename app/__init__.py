@@ -44,6 +44,8 @@ def create_app(test_config=None):
     app.register_blueprint(dashboards)
     from app.management import management
     app.register_blueprint(management)
+    from app.events import events
+    app.register_blueprint(events)
     app.cli.add_command(create_admin)
     app.before_request(protect_csrf)
     app.after_request(security_headers)

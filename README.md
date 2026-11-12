@@ -6,7 +6,7 @@ Database foundation for a university DBMS course project. Uses Python Flask, Pos
 
 Implemented: application factory, configuration, health check, nine normalized models, migrations, optional seed, authentication/CSRF, role and club authorization, role dashboards, initial administrator CLI, student profiles, club directory/editing/deactivation, memberships and club rosters, venue management, and tests.
 
-Not yet implemented: club administrator provisioning screens, event registration/capacity services, expense management, or reports. These belong to later approved phases. No database tables are created at startup; migrations require approval.
+Phase 5 adds event management, transactional registration, participant attendance, and personal event history. Expense management, system-wide reporting, and club administrator provisioning screens remain outside the implemented scope. No database tables are created at startup; migrations require approval.
 
 ## Windows setup (PowerShell)
 
@@ -77,6 +77,7 @@ app/
   auth/                       Login, registration, validation, permissions, admin CLI
   dashboards.py               Read-only role and club dashboards
   management/                 Phase 4 routes, validation, and membership rules
+  events/                     Event routes, validation, and transactional registration services
   main/__init__.py            Public routes and health endpoint
   templates/base.html         Shared Bootstrap layout
   templates/main/index.html   Homepage
@@ -88,6 +89,8 @@ tests/
   test_migration.py           Offline migration and seed opt-in tests
   test_auth.py                Authentication/authorization tests on both databases
   test_management.py          Phase 4 business rules and HTTP tests on both databases
+  test_events.py              Phase 5 HTTP and business-rule tests
+  test_event_concurrency.py   Opt-in PostgreSQL multi-connection races with exact-ID cleanup
 migrations/                   Alembic environment and reviewed initial revision
 scripts/                      Read-only initial generation and schema doc tools
 docs/                         ER diagram, schema reference, design decisions
@@ -124,6 +127,31 @@ Expected head after application: `0002_club_active`. Until that upgrade is appli
 ```powershell
 .\.venv\Scripts\python.exe -m flask --app app:create_app db upgrade 0001_initial:0002_club_active --sql
 ```
+
+## Phase 5: event management and registration
+
+See the [event routes, business rules, locking strategy, and test safety](docs/phase5-events.md). **No migration is needed**; current head remains `0002_club_active`.
+
+- Use **Events** to search/filter by title/description, status, upcoming/past dates, club, or venue. Event details show organizing club, venue, campus-local dates/times, capacity, available seats, and your own registration status.
+- Students register/reactivate or cancel from event details, view **My events** for personal status/history, and see their next five registered events on the student dashboard. Registration and normal cancellation close at start time; club membership is not required.
+- Assigned club administrators create events from a club dashboard or **Manage events**, edit upcoming scheduled events, cancel events, complete them after their end, and manage their participants. System administrators have the same capabilities for all clubs. Students cannot manage events or view others' participant lists.
+- Enter form times in **Asia/Dhaka**. New events require active clubs, valid non-overlapping venue slots, and capacity no greater than venue capacity. Cancelled/completed events cannot reopen. Event and registration history is preserved.
+- Registrations use the existing unique student/event row. Repeated joins are idempotent; reactivation updates the cancelled row. `registered` and `attended` occupy seats. PostgreSQL Event row locks serialize registration, cancellation, and capacity reductions; venue row locks coordinate booking/capacity edits. The existing exclusion constraint is preserved.
+- Managers record/undo attendance after event start. This does not enroll additional students or reactivate cancelled records. Every write form uses CSRF protection and owning-club authorization.
+
+Standard PostgreSQL tests roll back their writes:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest --postgres -q
+```
+
+Multi-connection concurrency tests require explicit approval because their unique fixtures briefly commit and cleanup removes only those fixture IDs. With approval, run the complete suite:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest --postgres --postgres-concurrency -q
+```
+
+Never run these against production or alongside other writers. No seed-dev run, reset, drop, or migration is part of Phase 5. Full details, limitations, and all routes are documented in `docs/phase5-events.md`.
 
 ## Phase 3: accounts and access
 
@@ -201,13 +229,13 @@ Regenerate schema documentation after model changes:
 
 ## Assumptions and unresolved items
 
-- Phase 4 stops before event registration, expenses, and administrator role/assignment provisioning.
+- Phase 5 stops before expenses, system-wide reporting, and administrator role/assignment provisioning.
 - PostgreSQL settings are supplied locally. Phase 4 requires approval to add club lifecycle state with revision `0002_club_active`.
 - Bootstrap 5.3.3 CSS is loaded from jsDelivr, requiring internet for Bootstrap styling. Custom CSS remains local. No JavaScript interactions are needed yet.
 - Dependencies use bounded compatible ranges rather than a fully locked environment. Record exact installed versions for final delivery.
 - The application factory follows the [Flask factory pattern](https://flask.palletsprojects.com/en/stable/patterns/appfactories/) and initializes configuration before [Flask-SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com/en/stable/config/).
 
-Phase 5 requires explicit approval.
+Phase 6 requires explicit approval.
 
 ## Phase 1 verification record (2026-11-11)
 
@@ -257,3 +285,14 @@ Phase 5 requires explicit approval.
 - Before and after PostgreSQL testing: **one existing User and one existing Student**, with all other domain table counts zero. Test writes rolled back; existing records were preserved. Sequence counters may have advanced. No schema reset, database drop, seed-dev run, or persistent test administrator creation occurred.
 - The schema reference and ER diagram include is_active. Route permissions, editable-field assumptions, membership lifecycle, and the migration review are in `docs/phase4-management.md`. HTTP rendering/flows were tested; browser visual verification and multi-connection stress tests were not performed.
 - Restart the local Flask server if it was running without automatic reload. Phase 4 is complete; Phase 5 has not started and requires approval.
+
+## Phase 5 verification record (2026-11-12)
+
+- Began with a clean worktree on main at `5bd71c4`, confirmed origin `creamypotatoo/University-Event-Management`, and created `feature/phase5-events-registration` before implementation. Only Phase 5-related changes are included.
+- `python -m pytest --postgres --postgres-concurrency -q`: **320 passed, 0 failed, 5 skipped**, comprising **158 PostgreSQL cases** (including six actual multi-connection races), **147 SQLite cases**, and **15 independent foundation/validation/offline-migration/CLI checks**. Skips are native venue exclusion cases on SQLite; PostgreSQL counterparts passed.
+- The rollback-only PostgreSQL run also passed: **314 passed, 0 failed, 11 skipped** (six concurrency cases opt-in plus five SQLite exclusions). The six concurrency tests passed independently before the combined suite.
+- The user explicitly approved temporary committed concurrency fixtures and exact-ID cleanup. Verified races: last-seat competition, same-student duplicate competition, both cancellation/registration orderings with an observed waiting Event lock, concurrent service bookings, and native PostgreSQL exclusion on competing raw inserts.
+- `db current`: **0002_club_active (head)**. `db check`: **No new upgrade operations detected**. No model columns, constraints, migration revisions, or real seed data were changed. Python compilation and pip dependency checks passed; no dependencies were installed.
+- Before/after tests: one existing User, one existing Student, all other domain tables empty. Rollback fixtures left no test records; committed race fixtures were removed by captured IDs. Existing data was preserved; sequence counters may have advanced. No database/schema reset/drop and no seed-dev run occurred.
+- New routes, eligibility/deadline/status rules, privacy, lock ordering, and SQLite limitations are documented in `docs/phase5-events.md`. HTTP rendering and flow tests passed; browser visual QA was not performed.
+- Phase 5 is complete. Expense management/reporting and Phase 6 have not started. Feature branch requires review before any merge into main.

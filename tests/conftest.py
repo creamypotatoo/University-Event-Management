@@ -16,6 +16,8 @@ from tests.helpers import TEST_HASH
 def pytest_addoption(parser):
     parser.addoption("--postgres", action="store_true", default=False,
                      help="Run rollback-isolated tests against the configured migrated local PostgreSQL database.")
+    parser.addoption("--postgres-concurrency", action="store_true", default=False,
+                     help="Approved multi-connection tests: commit unique fixture rows and remove only those rows afterward.")
 
 
 @pytest.fixture(params=["sqlite", pytest.param("postgresql", marks=pytest.mark.postgresql)])
