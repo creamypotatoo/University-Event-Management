@@ -60,7 +60,7 @@ def page(statement):
 
 @management.app_template_global()
 def page_url(number):
-    arguments = {name: request.args[name] for name in ("q", "status", "department", "when", "club_id", "venue_id", "from_date", "to_date") if name in request.args}
+    arguments = {name: request.args[name] for name in ("q", "status", "department", "when", "club_id", "event_id", "venue_id", "from_date", "to_date") if name in request.args}
     arguments.update(request.view_args or {})
     arguments["page"] = number
     return url_for(request.endpoint, **arguments)

@@ -25,6 +25,7 @@
         <a class="text-white px-1" href="{{ url_for('management.students') }}">Students</a>
         {% endif %}
         {% if current_user.is_authenticated and current_user.role in ['club_admin', 'system_admin'] %}<a class="text-white px-1" href="{{ url_for('events.manage') }}">Manage events</a>{% endif %}
+        {% if current_user.is_authenticated and current_user.role in ['club_admin', 'system_admin'] %}<a class="text-white px-1" href="{{ url_for('reports.financial') }}">Financial reports</a><a class="text-white px-1" href="{{ url_for('reports.analytics') }}">Analytics</a>{% endif %}
         {% if current_user.is_authenticated %}
           <a class="btn btn-outline-light btn-sm" href="{{ url_for('dashboards.index') }}">{{ {'student': 'Student', 'club_admin': 'Club administrator', 'system_admin': 'System administrator'}.get(current_user.role, 'My') }} dashboard</a>
           <form method="post" action="{{ url_for('auth.logout') }}">

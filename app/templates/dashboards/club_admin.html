@@ -2,6 +2,7 @@
 {% block title %}Club administrator dashboard{% endblock %}
 {% block heading %}Your assigned clubs{% endblock %}
 {% block dashboard_content %}
+{% include 'reports/dashboard_summary.html' %}
 <div class="row g-4">
   {% for club in clubs %}<div class="col-md-6"><article class="feature-card p-4 h-100">
     <h2 class="h5">{{ club.club_name }}</h2><p class="text-secondary">{{ club.description }}</p>

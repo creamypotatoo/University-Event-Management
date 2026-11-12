@@ -7,6 +7,7 @@
 <p class="form-text">Registration and normal cancellation close when the event starts. A seat is confirmed only after a successful registration.</p>
 {% if not open_registration %}<div class="alert alert-secondary">Registration is closed for this event.</div>{% elif occupied >= event.capacity %}<div class="alert alert-warning">This event is full. Check again if a seat becomes available.</div>{% endif %}
 <div class="d-flex gap-2 flex-wrap">
+{% if may_manage %}<a class="btn btn-outline-secondary" href="{{ url_for('reports.expenses', event_id=event.event_id) }}">Event expenses</a>{% endif %}
 {% if current_user.is_authenticated and current_user.role == 'student' %}
   {% if registration %}<span class="align-self-center">Your registration: <strong>{{ registration.status|capitalize }}</strong></span>{% endif %}
   {% if registration and registration.status == 'registered' %}<form method="post" action="{{ url_for('events.cancel', event_id=event.event_id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-outline-danger" type="submit">Cancel my registration</button></form>
