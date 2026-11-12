@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}{{ event.title }}{% endblock %}
+{% block content %}
+<section class="container py-5"><a href="{{ url_for('events.index') }}">← Events</a><article class="feature-card p-4 p-md-5 mt-3">
+<span class="badge text-bg-secondary">{{ event.status|capitalize }}</span><h1 class="h2 mt-3">{{ event.title }}</h1><p class="club-description text-break">{{ event.description }}</p>
+<dl class="row"><dt class="col-sm-3">Organizing club</dt><dd class="col-sm-9"><a href="{{ url_for('management.club_detail', club_id=event.club_id) }}">{{ event.club.club_name }}</a></dd><dt class="col-sm-3">Venue</dt><dd class="col-sm-9">{{ event.venue.venue_name }} · {{ event.venue.location }}</dd><dt class="col-sm-3">Starts</dt><dd class="col-sm-9">{{ event.start_time|campus_time }} (Asia/Dhaka)</dd><dt class="col-sm-3">Ends</dt><dd class="col-sm-9">{{ event.end_time|campus_time }} (Asia/Dhaka)</dd><dt class="col-sm-3">Capacity</dt><dd class="col-sm-9">{{ event.capacity }}</dd><dt class="col-sm-3">Available seats</dt><dd class="col-sm-9">{{ [event.capacity - occupied, 0]|max }}</dd></dl>
+<p class="form-text">Registration and normal cancellation close when the event starts. A seat is confirmed only after a successful registration.</p>
+{% if not open_registration %}<div class="alert alert-secondary">Registration is closed for this event.</div>{% elif occupied >= event.capacity %}<div class="alert alert-warning">This event is full. Check again if a seat becomes available.</div>{% endif %}
+<div class="d-flex gap-2 flex-wrap">
+{% if current_user.is_authenticated and current_user.role == 'student' %}
+  {% if registration %}<span class="align-self-center">Your registration: <strong>{{ registration.status|capitalize }}</strong></span>{% endif %}
+  {% if registration and registration.status == 'registered' %}<form method="post" action="{{ url_for('events.cancel', event_id=event.event_id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-outline-danger" type="submit">Cancel my registration</button></form>
+  {% elif open_registration and occupied < event.capacity and (not registration or registration.status == 'cancelled') %}<form method="post" action="{{ url_for('events.register', event_id=event.event_id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-campus" type="submit">{{ 'Reactivate registration' if registration else 'Register for event' }}</button></form>{% endif %}
+{% elif not current_user.is_authenticated %}<a class="btn btn-campus" href="{{ url_for('auth.login', next=url_for('events.detail', event_id=event.event_id)) }}">Log in to register</a>{% endif %}
+{% if may_manage %}<a class="btn btn-outline-secondary" href="{{ url_for('events.participants', event_id=event.event_id) }}">Manage participants</a>{% if event.status == 'scheduled' %}<a class="btn btn-campus" href="{{ url_for('events.edit', event_id=event.event_id) }}">Edit event</a>{% for target, label in [('cancelled', 'Cancel event'), ('completed', 'Mark completed')] %}<form method="post" action="{{ url_for('events.status', event_id=event.event_id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="status" value="{{ target }}"><button class="btn btn-outline-danger" type="submit">{{ label }}</button></form>{% endfor %}{% endif %}{% endif %}
+</div></article></section>
+{% endblock %}

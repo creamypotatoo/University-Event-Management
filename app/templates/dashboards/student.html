@@ -10,8 +10,9 @@
   </section></div>
   <div class="col-md-6"><section class="feature-card p-4 h-100">
     <h2 class="h5">Your campus journey</h2>
-    <p class="text-secondary">Explore university clubs and manage your memberships. Event sign-ups and participation history will arrive in later phases.</p>
+    <p class="text-secondary">Explore university clubs, manage memberships, and discover upcoming events.</p>
     <a class="btn btn-campus" href="{{ url_for('management.memberships') }}">My memberships</a>
   </section></div>
 </div>
+<section class="feature-card p-4 mt-4"><h2 class="h5">Your upcoming registered events</h2><ul class="list-group list-group-flush">{% for registration in upcoming_registrations %}<li class="list-group-item"><a href="{{ url_for('events.detail', event_id=registration.event_id) }}">{{ registration.event.title }}</a> · {{ registration.event.start_time|campus_time }}</li>{% else %}<li class="list-group-item text-secondary">No upcoming registered events yet.</li>{% endfor %}</ul><a class="btn btn-campus mt-3" href="{{ url_for('events.history') }}">View registration history</a></section>
 {% endblock %}

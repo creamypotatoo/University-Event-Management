@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% from 'management/macros.html' import pager with context %}
+{% block title %}{{ heading }}{% endblock %}
+{% block content %}
+<section class="container py-5"><div class="d-flex justify-content-between gap-3 flex-wrap"><h1 class="h2">{{ heading }}</h1>{% if current_user.is_authenticated and current_user.role in ['club_admin', 'system_admin'] %}<a class="btn btn-campus" href="{{ url_for('events.manage') }}">Manage events</a>{% endif %}</div>
+<p class="text-secondary">Discover campus experiences. All times are shown in Asia/Dhaka.</p>
+<form method="get" class="row g-3 mb-4" role="search">
+  <div class="col-md-4"><label for="q" class="form-label">Search events</label><input class="form-control" id="q" name="q" maxlength="150" value="{{ request.args.get('q', '') }}"></div>
+  {% for name, label, choices, selected in [('status', 'Status', ['all', 'scheduled', 'completed', 'cancelled'], request.args.get('status', 'all')), ('when', 'When', ['upcoming', 'past', 'all'], request.args.get('when', 'upcoming'))] %}
+  <div class="col-md-2"><label class="form-label" for="{{ name }}">{{ label }}</label><select class="form-select" name="{{ name }}" id="{{ name }}">{% for choice in choices %}<option value="{{ choice }}" {% if selected == choice %}selected{% endif %}>{{ choice|capitalize }}</option>{% endfor %}</select></div>{% endfor %}
+  {% for name, label, choices, key, title in [('club_id', 'Club', clubs, 'club_id', 'club_name'), ('venue_id', 'Venue', venues, 'venue_id', 'venue_name')] %}
+  <div class="col-md-2"><label class="form-label" for="{{ name }}">{{ label }}</label><select class="form-select" name="{{ name }}" id="{{ name }}"><option value="">All</option>{% for choice in choices %}<option value="{{ choice|attr(key) }}" {% if request.args.get(name) == (choice|attr(key))|string %}selected{% endif %}>{{ choice|attr(title) }}</option>{% endfor %}</select></div>{% endfor %}
+  {% for name, label in [('from_date', 'From date'), ('to_date', 'Through date')] %}<div class="col-md-3"><label class="form-label" for="{{ name }}">{{ label }}</label><input class="form-control" type="date" name="{{ name }}" id="{{ name }}" value="{{ request.args.get(name, '') }}"></div>{% endfor %}
+  <div class="col-md-auto align-self-end"><button class="btn btn-campus" type="submit">Search</button></div>
+</form>
+{% if manage %}<div class="feature-card p-3 mb-4"><h2 class="h6">Create an event for a club</h2><div class="d-flex gap-2 flex-wrap">{% for club in clubs %}{% if club.is_active and (current_user.role == 'system_admin' or club.club_id in managed_club_ids|default([])) %}<a class="btn btn-sm btn-outline-secondary" href="{{ url_for('events.create', club_id=club.club_id) }}">{{ club.club_name }}</a>{% endif %}{% endfor %}<span class="text-secondary small">You can also create an event from an assigned club dashboard.</span></div></div>{% endif %}
+<div class="row g-4">{% for event in pagination.items %}<div class="col-md-6 col-lg-4"><article class="feature-card p-4 h-100">
+<span class="badge {{ 'text-bg-success' if event.status == 'scheduled' else 'text-bg-secondary' }}">{{ event.status|capitalize }}</span><h2 class="h5 mt-3"><a href="{{ url_for('events.detail', event_id=event.event_id) }}">{{ event.title }}</a></h2><p>{{ event.club.club_name }} · {{ event.venue.venue_name }}</p><p>{{ event.start_time|campus_time }}</p><p class="text-secondary">{{ event.description|truncate(160) }}</p><p>{{ [event.capacity - counts.get(event.event_id, 0), 0]|max }} / {{ event.capacity }} seats available{% if event.status != 'scheduled' %} (registration closed){% endif %}</p>
+<a class="btn btn-outline-secondary btn-sm" href="{{ url_for('events.detail', event_id=event.event_id) }}">View event</a>{% if manage %} <a class="btn btn-campus btn-sm" href="{{ url_for('events.participants', event_id=event.event_id) }}">Participants</a>{% endif %}
+</article></div>{% else %}<div class="col-12"><p class="feature-card p-4 text-secondary">No events match your filters. Try a different date, club, or status.</p></div>{% endfor %}</div>{{ pager(pagination) }}</section>
+{% endblock %}

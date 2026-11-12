@@ -5,7 +5,7 @@ from flask_login import current_user, login_required
 
 from app.auth.authorization import club_admin_required, roles_required
 from app.extensions import db
-from app.models import Club, ClubAdmin
+from app.models import Club, ClubAdmin, Event, Registration
 
 dashboards = Blueprint("dashboards", __name__)
 
@@ -25,7 +25,13 @@ def index():
 def student():
     if current_user.student is None:
         abort(403)
-    return render_template("dashboards/student.html")
+    from app.events.services import now_utc
+    from sqlalchemy.orm import joinedload
+    registrations = db.session.scalars(db.select(Registration).join(Event).where(
+        Registration.student_id == current_user.student.student_id, Registration.status == "registered",
+        Event.status == "scheduled", Event.start_time > now_utc()
+    ).options(joinedload(Registration.event)).order_by(Event.start_time, Event.event_id).limit(5)).all()
+    return render_template("dashboards/student.html", upcoming_registrations=registrations)
 
 
 @dashboards.get("/dashboard/club-admin")
