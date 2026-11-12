@@ -12,6 +12,7 @@ from app.auth.authorization import can_manage_club, club_admin_required, roles_r
 from app.events import services
 from app.events.validation import CAMPUS_TIMEZONE, event_input
 from app.extensions import db
+from app.errors import error_response, rollback_safely
 from app.management import get_record, my_student, page, query_text
 from app.models import Club, ClubAdmin, Event, Registration, Student, User, Venue
 
@@ -20,13 +21,13 @@ events = Blueprint("events", __name__)
 
 @events.errorhandler(services.RuleViolation)
 def rule_failure(error):
-    db.session.rollback()
-    return render_template("errors/400.html", message=str(error)), error.code
+    rollback_safely()
+    return error_response(error.code, str(error))
 
 
 @events.errorhandler(SQLAlchemyError)
 def database_failure(error):
-    db.session.rollback()
+    rollback_safely()
     code = getattr(getattr(error, "orig", None), "sqlstate", None)
     if isinstance(error, IntegrityError):
         message = ("The venue booking conflicts with another event. Choose a different time or venue."
@@ -36,7 +37,7 @@ def database_failure(error):
         message, status = "Another request changed this record. Please reload and try again.", 409
     else:
         message, status = "Event services are temporarily unavailable. Please try again later.", 503
-    return render_template("errors/400.html", message=message), status
+    return error_response(status, message)
 
 
 @events.app_template_filter("campus_time")
@@ -120,7 +121,10 @@ def detail(event_id):
         registration = db.session.scalar(db.select(Registration).where(Registration.event_id == event_id, Registration.student_id == current_user.student.student_id))
     open_registration = event.status == "scheduled" and services.utc(event.start_time) > services.now_utc() and event.club.is_active
     return render_template("events/detail.html", event=event, registration=registration, occupied=services.seats_used(db.session, event_id),
-                           open_registration=open_registration, may_manage=can_manage_club(current_user, event.club_id))
+                           open_registration=open_registration, may_manage=can_manage_club(current_user, event.club_id),
+                           can_complete=event.status == "scheduled" and services.utc(event.end_time) <= services.now_utc(),
+                           can_cancel=registration is not None and registration.status == "registered" and event.status != "completed" and
+                           (event.status == "cancelled" or services.utc(event.start_time) > services.now_utc()))
 
 
 @events.route("/clubs/<int:club_id>/events/new", methods=["GET", "POST"])

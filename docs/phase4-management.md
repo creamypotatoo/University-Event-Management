@@ -1,5 +1,7 @@
 # Student, club, membership, and venue management
 
+Final Phase 7 QA preserves the management rules and adds search clearing, campus-local membership dates, accessible navigation/tables/forms, and convenience club status prompts. Server CSRF/role/lifecycle checks remain authoritative; JS prompts are optional enhancement. See [final demo](final-demo-guide.md) and [final testing report](final-testing-report.md). Results recorded below refer to the original Phase 4 completion.
+
 Phase 4 builds on existing Flask blueprints, CSRF protection, role checks, and normalized tables. No event registration or expense workflows are added.
 
 ## Routes and permissions

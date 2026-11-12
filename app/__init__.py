@@ -4,7 +4,7 @@ from pathlib import Path
 
 import click
 from dotenv import load_dotenv
-from flask import Flask, render_template
+from flask import Flask
 from sqlalchemy import text
 from sqlalchemy.engine import make_url
 from sqlalchemy.exc import SQLAlchemyError
@@ -53,17 +53,8 @@ def create_app(test_config=None):
     app.after_request(security_headers)
     app.jinja_env.globals["csrf_token"] = csrf_token
 
-    @app.errorhandler(403)
-    def forbidden(error):
-        return render_template("errors/403.html"), 403
-
-    @app.errorhandler(400)
-    def bad_request(error):
-        return render_template("errors/400.html", message=error.description), 400
-
-    @app.errorhandler(409)
-    def conflict(error):
-        return render_template("errors/400.html", message=error.description), 409
+    from app.errors import register_errors
+    register_errors(app)
 
     from app.seed import seed_dev
     app.cli.add_command(seed_dev)

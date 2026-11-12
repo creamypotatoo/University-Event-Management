@@ -6,7 +6,7 @@
 {{ search(q, ['all', 'active', 'cancelled'], status) }}
 <div class="table-responsive feature-card"><table class="table align-middle mb-0"><caption class="px-3">Your memberships</caption><thead><tr><th scope="col">Club</th><th scope="col">Membership</th><th scope="col">Originally joined</th><th scope="col">Action</th></tr></thead><tbody>
 {% for membership in pagination.items %}<tr>
-<td><a href="{{ url_for('management.club_detail', club_id=membership.club_id) }}">{{ membership.club.club_name }}</a>{% if not membership.club.is_active %} <span class="badge text-bg-secondary">Inactive club</span>{% endif %}</td><td>{{ membership.status|capitalize }}</td><td>{{ membership.joined_at.strftime('%Y-%m-%d') }}</td>
+<td><a href="{{ url_for('management.club_detail', club_id=membership.club_id) }}">{{ membership.club.club_name }}</a>{% if not membership.club.is_active %} <span class="badge text-bg-secondary">Inactive club</span>{% endif %}</td><td>{{ membership.status|capitalize }}</td><td>{{ membership.joined_at|campus_time('%d %b %Y') }}</td>
 <td>{% if membership.status == 'active' or membership.club.is_active %}<form method="post" action="{{ url_for('management.leave_club' if membership.status == 'active' else 'management.join_club', club_id=membership.club_id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-outline-secondary" type="submit">{{ 'Leave' if membership.status == 'active' else 'Rejoin' }}</button></form>{% else %}Unavailable{% endif %}</td></tr>
 {% else %}<tr><td colspan="4" class="p-4">You have not joined any clubs. <a href="{{ url_for('management.clubs') }}">Explore the club directory</a>.</td></tr>{% endfor %}
 </tbody></table></div>{{ pager(pagination) }}</section>

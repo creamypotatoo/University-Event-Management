@@ -2,6 +2,29 @@
 
 Database foundation for a university DBMS course project. Uses Python Flask, PostgreSQL, Flask-SQLAlchemy, Flask-Migrate, Flask-Login, Werkzeug, server-rendered HTML, CSS, and Bootstrap 5.
 
+## Final presentation handoff
+
+Phases 1–7 are implemented. Final full suite: **403 passed, 0 failed, 5 skipped**. No Phase 7 migration or new dependency was needed; head remains `0002_club_active`. Browser/manual sign-off remains pending and is not implied by HTTP tests.
+
+- [Final demo guide and manual checklist](docs/final-demo-guide.md): Windows launch, three-role setup, timed presentation steps, and explicitly pending browser checks.
+- [Viva preparation](docs/viva-preparation.md): ER/normalization explanation, 40 questions and concise answers, 14 actual-schema SQL examples, locking and financial query reasoning.
+- [Final testing report](docs/final-testing-report.md): exact results/warnings/coverage availability, security audit, data preservation, query plans, known limitations.
+- [Schema reference](docs/schema.md) and [ER diagram](docs/er-diagram.md): generated from actual models, with unique-pair/cardinality explanations.
+
+Phase 7 improves navigation/focus/tables/forms, safe status-specific error recovery, date display, and confirmation prompts while preserving Phase 1–6 functionality. It does not add general account/role management. Student records remain private to their owner/system administrator; the student directory is not public.
+
+Final verification commands (from the configured local development environment):
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest --postgres --postgres-concurrency -q
+.\.venv\Scripts\python.exe scripts/verify_database.py
+.\.venv\Scripts\python.exe scripts/verify_templates.py
+.\.venv\Scripts\python.exe -m compileall -q app tests scripts migrations
+.\.venv\Scripts\python.exe -m pip check
+```
+
+The full suite reuses previously approved concurrency fixtures with exact-ID cleanup. The database audit is read-only and prints schema/counts/plans, not user records or credentials. Template checks do not execute JavaScript or replace the pending browser checklist. Coverage tooling is unavailable and no coverage percentage is claimed.
+
 ## Scope
 
 Implemented: application factory, configuration, health check, nine normalized models, migrations, optional seed, authentication/CSRF, role and club authorization, role dashboards, initial administrator CLI, student profiles, club directory/editing/deactivation, memberships and club rosters, venue management, and tests.
@@ -79,6 +102,8 @@ app/
   management/                 Phase 4 routes, validation, and membership rules
   events/                     Event routes, validation, and transactional registration services
   reports/                    Expense CRUD, scoped aggregate queries, money validation, CSV safety
+  errors.py                   Status-specific failure recovery without user/database template lookup
+  static/js/app.js            Lightweight progressive navigation and confirmation prompts
   main/__init__.py            Public routes and health endpoint
   templates/base.html         Shared Bootstrap layout
   templates/main/index.html   Homepage
@@ -93,6 +118,7 @@ tests/
   test_events.py              Phase 5 HTTP and business-rule tests
   test_event_concurrency.py   Opt-in PostgreSQL multi-connection races with exact-ID cleanup
   test_reports.py             Phase 6 expense, aggregate, permissions, dashboard, and CSV tests
+  test_final_qa.py            Three-role HTTP journey and final error/security/accessibility regressions
 migrations/                   Alembic environment and reviewed initial revision
 scripts/                      Read-only initial generation and schema doc tools
 docs/                         ER diagram, schema reference, design decisions
@@ -257,7 +283,7 @@ Regenerate schema documentation after model changes:
 - Dependencies use bounded compatible ranges rather than a fully locked environment. Record exact installed versions for final delivery.
 - The application factory follows the [Flask factory pattern](https://flask.palletsprojects.com/en/stable/patterns/appfactories/) and initializes configuration before [Flask-SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com/en/stable/config/).
 
-Phase 7 requires explicit approval.
+This is the final development phase. Review the feature branch and complete manual browser sign-off before presentation/merge; no additional phase is started automatically.
 
 ## Phase 1 verification record (2026-11-11)
 
@@ -329,3 +355,14 @@ Phase 7 requires explicit approval.
 - Before/after testing: one existing User and one existing Student; every other domain table empty. New report/expense tests rolled back, and previously approved race fixtures cleaned up only their own IDs. Existing development records were preserved; sequence counters may have advanced.
 - Routes, permissions, formulas, query strategy, date meanings, unsupported schema fields, CSV safety, and report-size limitations are documented in `docs/phase6-reports.md`. HTTP rendering was tested; browser visual QA was not performed.
 - Phase 6 is complete and requires feature-branch review before merge. Phase 7 has not started.
+
+## Phase 7 final verification (2026-11-12)
+
+- Verified Phase 6 merged into main through PR #2, updated main with fast-forward-only pull, and created `feature/phase7-final-polish` from clean main.
+- Full suite: **403 passed, 0 failed, 5 skipped**, including **191 PostgreSQL cases**, **180 passing SQLite cases**, and **32 independent checks**. The five skips are PostgreSQL-specific venue exclusions on SQLite; corresponding PostgreSQL tests and all six approved concurrency tests passed. No pytest warnings were reported.
+- Focused final-QA suite: **13 passed**, including a complete three-role HTTP journey, error status/escaping/rollback behavior, logged-in database-outage recovery, event-form error associations, and production cookie flags.
+- Schema/index/constraint audit passed in a read-only transaction; representative EXPLAIN plans were reviewed on the small current dataset. No index or schema change was justified. Head remains `0002_club_active`; `db check` found no new upgrade operations.
+- **33 Jinja templates compiled**, and all **16 source POST forms** contained CSRF fields. Python compilation and dependency checks passed. No new dependency was installed; coverage and JS/browser runtime tooling were unavailable.
+- Existing data preserved: one User, one Student, all other core tables empty before/after. No persistent demo setup, seed-dev, database reset/drop, or migration ran. Tests rolled back their rows or cleaned up previously approved synthetic race IDs; sequence counters may have advanced.
+- Created demo/manual-QA guide, 40-question viva preparation with 14 SQL examples, and final testing report. Schema and ER documentation were regenerated consistently; feature docs include final QA notes.
+- Manual browser, responsive rendering, JavaScript dialogs/menu execution, assistive technologies, and spreadsheet import remain pending human sign-off. This is not production-security certification. Final feature branch must be reviewed before merge; no further development phase is started.

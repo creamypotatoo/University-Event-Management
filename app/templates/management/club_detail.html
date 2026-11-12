@@ -16,7 +16,7 @@
     {% elif not current_user.is_authenticated %}<a class="btn btn-campus" href="{{ url_for('auth.login', next=url_for('management.club_detail', club_id=club.club_id)) }}">Log in to join</a>{% endif %}
     {% if may_manage %}<a class="btn btn-campus" href="{{ url_for('management.club_edit', club_id=club.club_id) }}">Edit club</a><a class="btn btn-outline-secondary" href="{{ url_for('management.club_members', club_id=club.club_id) }}">Manage members</a>{% endif %}
     {% if current_user.is_authenticated and current_user.role == 'system_admin' %}
-      <form method="post" action="{{ url_for('management.club_status', club_id=club.club_id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="status" value="{{ 'inactive' if club.is_active else 'active' }}"><button class="btn btn-outline-danger" type="submit">{{ 'Deactivate club' if club.is_active else 'Reactivate club' }}</button></form>
+      <form method="post" action="{{ url_for('management.club_status', club_id=club.club_id) }}" data-confirm="{{ 'Deactivate this club? New memberships and event registration will close; existing records will remain.' if club.is_active else 'Reactivate this club?' }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="status" value="{{ 'inactive' if club.is_active else 'active' }}"><button class="btn btn-outline-danger" type="submit">{{ 'Deactivate club' if club.is_active else 'Reactivate club' }}</button></form>
     {% endif %}
     </div>
   </article>
