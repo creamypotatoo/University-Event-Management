@@ -2,6 +2,8 @@
 {% block title %}Student dashboard{% endblock %}
 {% block heading %}Your student dashboard{% endblock %}
 {% block dashboard_content %}
+{% from 'reports/macros.html' import cards %}
+{{ cards([('Your registration records', personal.total), ('Upcoming registered events', personal.upcoming), ('Attended events', personal.attended), ('Non-cancelled past participation', personal.past), ('Cancelled registrations', personal.cancelled)]) }}
 <div class="row g-4">
   <div class="col-md-6"><section class="feature-card p-4 h-100">
     <h2 class="h5">Student profile</h2>

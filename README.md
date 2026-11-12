@@ -6,7 +6,7 @@ Database foundation for a university DBMS course project. Uses Python Flask, Pos
 
 Implemented: application factory, configuration, health check, nine normalized models, migrations, optional seed, authentication/CSRF, role and club authorization, role dashboards, initial administrator CLI, student profiles, club directory/editing/deactivation, memberships and club rosters, venue management, and tests.
 
-Phase 5 adds event management, transactional registration, participant attendance, and personal event history. Expense management, system-wide reporting, and club administrator provisioning screens remain outside the implemented scope. No database tables are created at startup; migrations require approval.
+Phases 5–6 add event management, transactional registration, attendance/history, expense CRUD, exact financial summaries, participation analytics, role-based summary cards, and safe CSV export. Club administrator provisioning screens remain outside scope. No database tables are created at startup; migrations require approval.
 
 ## Windows setup (PowerShell)
 
@@ -78,6 +78,7 @@ app/
   dashboards.py               Read-only role and club dashboards
   management/                 Phase 4 routes, validation, and membership rules
   events/                     Event routes, validation, and transactional registration services
+  reports/                    Expense CRUD, scoped aggregate queries, money validation, CSV safety
   main/__init__.py            Public routes and health endpoint
   templates/base.html         Shared Bootstrap layout
   templates/main/index.html   Homepage
@@ -91,6 +92,7 @@ tests/
   test_management.py          Phase 4 business rules and HTTP tests on both databases
   test_events.py              Phase 5 HTTP and business-rule tests
   test_event_concurrency.py   Opt-in PostgreSQL multi-connection races with exact-ID cleanup
+  test_reports.py             Phase 6 expense, aggregate, permissions, dashboard, and CSV tests
 migrations/                   Alembic environment and reviewed initial revision
 scripts/                      Read-only initial generation and schema doc tools
 docs/                         ER diagram, schema reference, design decisions
@@ -152,6 +154,26 @@ Multi-connection concurrency tests require explicit approval because their uniqu
 ```
 
 Never run these against production or alongside other writers. No seed-dev run, reset, drop, or migration is part of Phase 5. Full details, limitations, and all routes are documented in `docs/phase5-events.md`.
+
+## Phase 6: expenses, financial reports, and analytics
+
+See [Phase 6 routes, permissions, metric formulas, query design, and CSV safety](docs/phase6-reports.md). No migration is required; head remains `0002_club_active`.
+
+- From an event's detail page, authorized managers open **Event expenses** to search/filter costs and add/edit records. Delete links open a confirmation page; only a confirmed CSRF-protected POST removes the selected expense. Students cannot access private financial information.
+- **Financial reports** shows exact BDT expense totals by event and club, monthly expense trends, and highest-spending events. Events/clubs with no expenses show zero. The existing schema has no categories/revenue/budgets, so these are not invented.
+- **Analytics** shows event counts/statuses, registration/attendance counts, occupancy, club participation, popular events, and monthly event starts. Completed-event attendance rates use attended / (registered + attended); upcoming-event rates show N/A.
+- Manager dashboards show authorized summary cards and links to complete reports; club administrators see assigned clubs only. Student dashboards show only their own upcoming registrations, attended count, past non-cancelled participation, and history link.
+- Both report pages support date range, club, and event filters. Financial dates refer to expense_date; analytics dates refer to event start in Asia/Dhaka. CSV downloads apply the same permissions/filters and include all filtered rows rather than only the current HTML page. Text cells are neutralized against spreadsheet formula injection and properly quoted as UTF-8.
+- Expense input uses Decimal/NUMERIC: nonnegative amounts up to 9999999999.99 with at most two fractional digits. Invalid/nonfinite numbers and excess precision are rejected. All existing constraints and relationships remain intact.
+
+Run the focused PostgreSQL checks and complete regression suite:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest tests/test_reports.py --postgres -q
+.\.venv\Scripts\python.exe -m pytest --postgres --postgres-concurrency -q
+```
+
+New report/expense tests roll back all writes, including fixture deletions. The full suite reuses the six previously approved temporary committed concurrency fixtures with exact-ID cleanup. No development records are changed by setup, and seed-dev is not run.
 
 ## Phase 3: accounts and access
 
@@ -229,13 +251,13 @@ Regenerate schema documentation after model changes:
 
 ## Assumptions and unresolved items
 
-- Phase 5 stops before expenses, system-wide reporting, and administrator role/assignment provisioning.
+- Phase 6 stops before Phase 7 polishing and additional account/role provisioning features.
 - PostgreSQL settings are supplied locally. Phase 4 requires approval to add club lifecycle state with revision `0002_club_active`.
 - Bootstrap 5.3.3 CSS is loaded from jsDelivr, requiring internet for Bootstrap styling. Custom CSS remains local. No JavaScript interactions are needed yet.
 - Dependencies use bounded compatible ranges rather than a fully locked environment. Record exact installed versions for final delivery.
 - The application factory follows the [Flask factory pattern](https://flask.palletsprojects.com/en/stable/patterns/appfactories/) and initializes configuration before [Flask-SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com/en/stable/config/).
 
-Phase 6 requires explicit approval.
+Phase 7 requires explicit approval.
 
 ## Phase 1 verification record (2026-11-11)
 
@@ -296,3 +318,14 @@ Phase 6 requires explicit approval.
 - Before/after tests: one existing User, one existing Student, all other domain tables empty. Rollback fixtures left no test records; committed race fixtures were removed by captured IDs. Existing data was preserved; sequence counters may have advanced. No database/schema reset/drop and no seed-dev run occurred.
 - New routes, eligibility/deadline/status rules, privacy, lock ordering, and SQLite limitations are documented in `docs/phase5-events.md`. HTTP rendering and flow tests passed; browser visual QA was not performed.
 - Phase 5 is complete. Expense management/reporting and Phase 6 have not started. Feature branch requires review before any merge into main.
+
+## Phase 6 verification record (2026-11-12)
+
+- Verified Phase 5 merged into main by PR #1 (`79cb0dd`), confirmed a clean worktree, ran the requested fast-forward-only pull, and created `feature/phase6-reports-expenses` from updated main.
+- Focused expense/report suite on SQLite and PostgreSQL: **70 passed, 0 failed**.
+- Full suite: `python -m pytest --postgres --postgres-concurrency -q` → **390 passed, 0 failed, 5 skipped**. This comprises **188 PostgreSQL cases**, **177 SQLite cases**, and **25 database-independent checks**. All five skips are native venue exclusion cases on SQLite; PostgreSQL counterparts pass. All Phase 1–5 regressions and the six previously approved concurrency cases passed.
+- Verified expense CRUD/confirmation, Decimal validation, exact sums without registration join fanout, zero events/clubs, role/club scope, student privacy, dashboard metrics, campus-local date boundaries, filtered CSV quoting/Unicode/formula safety, CSRF, and safe database errors.
+- `db current`: **0002_club_active (head)**. `db check`: **No new upgrade operations detected**. No migration, model change, schema reset/drop, dependency install, or seed-dev run was needed. Python compilation and pip dependency checks passed.
+- Before/after testing: one existing User and one existing Student; every other domain table empty. New report/expense tests rolled back, and previously approved race fixtures cleaned up only their own IDs. Existing development records were preserved; sequence counters may have advanced.
+- Routes, permissions, formulas, query strategy, date meanings, unsupported schema fields, CSV safety, and report-size limitations are documented in `docs/phase6-reports.md`. HTTP rendering was tested; browser visual QA was not performed.
+- Phase 6 is complete and requires feature-branch review before merge. Phase 7 has not started.

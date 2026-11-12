@@ -4,5 +4,5 @@
 {% block dashboard_content %}
 <section class="feature-card p-4"><h2 class="h5">Club overview</h2><p>{{ club.description }}</p>
 <div class="d-flex gap-2 flex-wrap"><a class="btn btn-campus" href="{{ url_for('management.club_edit', club_id=club.club_id) }}">Edit club</a><a class="btn btn-outline-secondary" href="{{ url_for('management.club_members', club_id=club.club_id) }}">Manage members</a></div>
-<div class="d-flex gap-2 flex-wrap mt-3"><a class="btn btn-campus" href="{{ url_for('events.create', club_id=club.club_id) }}">Create event</a><a class="btn btn-outline-secondary" href="{{ url_for('events.club_events', club_id=club.club_id) }}">Club events</a></div><p class="text-secondary mt-3 mb-0">Expense management will be available in a later phase.</p></section>
+<div class="d-flex gap-2 flex-wrap mt-3"><a class="btn btn-campus" href="{{ url_for('events.create', club_id=club.club_id) }}">Create event</a><a class="btn btn-outline-secondary" href="{{ url_for('events.club_events', club_id=club.club_id) }}">Club events</a><a class="btn btn-outline-secondary" href="{{ url_for('reports.financial', club_id=club.club_id) }}">Club finances</a><a class="btn btn-outline-secondary" href="{{ url_for('reports.analytics', club_id=club.club_id) }}">Club analytics</a></div></section>
 {% endblock %}

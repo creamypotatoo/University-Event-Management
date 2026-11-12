@@ -1,0 +1,9 @@
+{% macro filters(clubs, events) %}
+<form method="get" class="row g-3 mb-4" aria-label="Report filters">
+{% for name, label in [('from_date', 'From date'), ('to_date', 'Through date')] %}<div class="col-md-3"><label class="form-label" for="{{ name }}">{{ label }}</label><input class="form-control" type="date" name="{{ name }}" id="{{ name }}" value="{{ request.args.get(name, '') }}"></div>{% endfor %}
+{% for name, label, rows, key, title in [('club_id', 'Club', clubs, 'club_id', 'club_name'), ('event_id', 'Event', events, 'event_id', 'title')] %}<div class="col-md-3"><label class="form-label" for="{{ name }}">{{ label }}</label><select class="form-select" name="{{ name }}" id="{{ name }}"><option value="">All authorized {{ label|lower }}s</option>{% for row in rows %}<option value="{{ row|attr(key) }}" {% if request.args.get(name) == (row|attr(key))|string %}selected{% endif %}>{{ row|attr(title) }}</option>{% endfor %}</select></div>{% endfor %}
+<div class="col-12"><button class="btn btn-campus" type="submit">Apply filters</button> <a class="btn btn-outline-secondary" href="{{ url_for(request.endpoint) }}">Clear filters</a></div>
+</form>
+{% endmacro %}
+{% macro csv_link(endpoint) %}<a class="btn btn-outline-secondary mb-4" href="{{ url_for(endpoint, from_date=request.args.get('from_date', ''), to_date=request.args.get('to_date', ''), club_id=request.args.get('club_id', ''), event_id=request.args.get('event_id', '')) }}">Download filtered CSV</a>{% endmacro %}
+{% macro cards(items) %}<div class="row g-3 mb-4">{% for label, value in items %}<div class="col-6 col-lg-3"><div class="feature-card p-3 h-100"><p class="small text-secondary mb-2">{{ label }}</p><p class="h4 mb-0">{{ value }}</p></div></div>{% endfor %}</div>{% endmacro %}

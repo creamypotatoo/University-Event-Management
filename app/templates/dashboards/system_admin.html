@@ -2,6 +2,7 @@
 {% block title %}System administrator dashboard{% endblock %}
 {% block heading %}System administration{% endblock %}
 {% block dashboard_content %}
+{% include 'reports/dashboard_summary.html' %}
 <div class="row g-4">
   {% for title, description, endpoint in [('Clubs', 'Create and edit clubs, manage members, and deactivate clubs while preserving records.', 'management.clubs'), ('Venues', 'Manage campus locations and venue capacity.', 'management.venues'), ('Students', 'Browse and search private student records.', 'management.students')] %}
   <div class="col-md-4"><section class="feature-card p-4 h-100"><h2 class="h5">{{ title }}</h2><p class="text-secondary">{{ description }}</p><a class="btn btn-campus" href="{{ url_for(endpoint) }}">Manage {{ title|lower }}</a></section></div>
