@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ code }} · {{ title }} | CampusConnect</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="bg-dark py-3"><div class="container"><a class="navbar-brand text-white fw-bold" href="{{ url_for('main.index') }}">Campus<span class="brand-accent">Connect</span></a></div></header>
+  <main class="container py-5" id="main-content" tabindex="-1"><section class="feature-card p-4 p-md-5 error-card mx-auto" aria-labelledby="error-title">
+    <p class="text-secondary small fw-bold">{{ code }}</p><h1 class="h2" id="error-title">{{ title }}</h1>
+    <p role="alert">{{ message }}</p><p class="text-secondary">Use the links below to continue. If a form expired, reopen it before submitting again.</p>
+    <div class="d-flex gap-2 flex-wrap"><a class="btn btn-campus" href="{{ url_for('main.index') }}">Return home</a><a class="btn btn-outline-secondary" href="{{ url_for('events.index') }}">Browse events</a></div>
+  </section></main>
+</body>
+</html>

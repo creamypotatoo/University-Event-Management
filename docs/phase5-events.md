@@ -1,5 +1,7 @@
 # Phase 5: events and registration
 
+Final Phase 7 QA preserves service rules and locks, aligns visible edit/complete/cancel buttons with existing eligibility, and adds optional confirmations. Invalid form controls now reference their error text. All six concurrency regressions pass in the [final testing report](final-testing-report.md); browser dialog/menu behavior remains pending human QA. Original Phase 5 verification results remain below for history.
+
 The existing Event, Registration, Club, and Venue models and all constraints are reused. There is no new migration: head remains `0002_club_active`. PostgreSQL's `btree_gist` exclusion constraint remains intact. No event deletion, expense management, or Phase 6 reporting is introduced.
 
 ## Routes and permissions

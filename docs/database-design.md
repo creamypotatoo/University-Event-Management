@@ -1,5 +1,7 @@
 # Database design and migration review
 
+Final Phase 7 audit verified live PK/FK targets, required fields, unique/check/index declarations, FK-leading index coverage, installed btree_gist, and the actual venue exclusion using `scripts/verify_database.py` in a read-only transaction. Nine PKs, ten FKs, nineteen CHECKs, seven UNIQUE constraints plus the email unique index were verified. Small-table EXPLAIN plans did not justify new indexes. No schema/migration change was needed; head remains `0002_club_active`. See [final testing evidence](final-testing-report.md) and [viva preparation](viva-preparation.md).
+
 ## Normalization and relationships
 
 The nine tables separate identity, student attributes, clubs, administrator assignments, venues, events, registrations, memberships, and expenses. Each non-key attribute describes its row's entity; names, department, venue details, and expense totals are not copied into associative rows. Totals and attendance counts are derived with joins and aggregation rather than stored. The design follows third normal form for the stated attributes.

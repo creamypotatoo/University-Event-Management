@@ -12,6 +12,6 @@
 <form method="get" class="row g-2 mb-4" role="search">
   <div class="col-sm"><label for="q" class="form-label">Search</label><input type="search" class="form-control" name="q" id="q" value="{{ q }}" maxlength="150" placeholder="Search by name or details"></div>
   {% if statuses %}<div class="col-sm-3"><label for="status" class="form-label">Status</label><select class="form-select" id="status" name="status">{% for value in statuses %}<option value="{{ value }}" {% if selected == value %}selected{% endif %}>{{ value|capitalize }}</option>{% endfor %}</select></div>{% endif %}
-  <div class="col-sm-auto align-self-end"><button class="btn btn-campus" type="submit">Search</button></div>
+  <div class="col-sm-auto align-self-end"><button class="btn btn-campus" type="submit">Search</button> <a class="btn btn-outline-secondary" href="{{ url_for(request.endpoint, **(request.view_args or {})) }}">Clear</a></div>
 </form>
 {% endmacro %}

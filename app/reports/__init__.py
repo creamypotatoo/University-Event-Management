@@ -13,6 +13,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.auth.authorization import can_manage_club, roles_required
 from app.events.validation import CAMPUS_TIMEZONE
 from app.extensions import db
+from app.errors import error_response, rollback_safely
 from app.management import get_record, page, query_text
 from app.models import Club, Event, EventExpense
 from app.reports.csv_export import csv_response
@@ -24,8 +25,8 @@ reports = Blueprint("reports", __name__)
 
 @reports.errorhandler(SQLAlchemyError)
 def database_error(error):
-    db.session.rollback()
-    return render_template("errors/400.html", message="Financial/report services are temporarily unavailable. No partial changes were saved."), 503
+    rollback_safely()
+    return error_response(503, "Financial/report services are temporarily unavailable. No partial changes were saved.")
 
 
 @reports.app_template_filter("money")

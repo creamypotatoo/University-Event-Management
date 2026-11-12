@@ -11,7 +11,7 @@ def test_homepage(client):
     response = client.get("/")
     assert response.status_code == 200
     assert b"Find your people." in response.data
-    assert b"Foundation preview" in response.data
+    assert b"Campus life, connected." in response.data
     assert b"bootstrap@5.3.3" in response.data
 
 

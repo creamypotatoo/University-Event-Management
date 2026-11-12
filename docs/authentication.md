@@ -31,3 +31,7 @@ Tests cover registration success/validation/atomic conflicts, hashing, role inje
 This local course application has no email verification, password reset/change, MFA, shared login throttling, or server-side session revocation. Before internet deployment, add persistent abuse controls and an account recovery policy, use a production WSGI server and HTTPS, and configure trusted hosts. The development server/debugger is for local use. Bootstrap remains CDN-hosted. No browser screenshot or manual visual verification is implied by HTTP tests.
 
 Patterns follow the official [Flask security guidance](https://flask.palletsprojects.com/en/stable/web-security/) and [Flask-Login documentation](https://flask-login.readthedocs.io/en/latest/).
+
+## Final QA recovery note
+
+Phase 7 adds status-specific error pages and a database-safe renderer that bypasses Flask-Login's eager template context processor during failures. A user-loader/database outage returns a generic 503 rather than attempting the same failed lookup while rendering an error. Regression tests cover that path, 500 detail suppression, rollback, and production cookie flags. No authentication schema or privilege rules changed. See [final testing report](final-testing-report.md) for automated evidence and explicit remaining browser/security limitations.

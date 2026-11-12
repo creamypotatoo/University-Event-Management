@@ -15,3 +15,34 @@ a:focus-visible { outline: 3px solid #e6ad16; outline-offset: 4px; }
 .btn-campus:hover, .btn-campus:focus-visible { background: #0b433b; color: white; }
 .form-control:focus { border-color: var(--campus-green); box-shadow: 0 0 0 .2rem #125b5026; }
 @media (max-width: 575px) { .navbar .small { display: none; } .hero .display-4 { font-size: 2.5rem; } }
+.nav-toggle { display: none; }
+.nav-links a { text-underline-offset: .2em; }
+.nav-links a[aria-current="page"] { font-weight: 700; text-decoration-thickness: 2px; }
+.feature-card { box-shadow: 0 3px 14px #182d2a06; }
+.table > :not(caption) > * > * { padding: .9rem 1rem; vertical-align: middle; }
+.table th { background: #f0f5f2; color: #243d37; white-space: nowrap; }
+.table caption { color: #52655e; font-size: .875rem; }
+.table td { overflow-wrap: anywhere; }
+.table-responsive { overscroll-behavior-x: contain; }
+.table-responsive:focus-visible { outline: 3px solid #b57d00; outline-offset: 3px; }
+.form-label { font-weight: 600; }
+.form-text, .text-secondary { color: #52655e !important; }
+.error-card { max-width: 48rem; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid #b57d00; outline-offset: 3px; }
+.btn { min-height: 2.5rem; }
+.invalid-feedback { font-size: .9rem; }
+@media (max-width: 991px) {
+  .js-ready .nav-toggle { display: inline-flex; align-items: center; }
+  .nav-links { width: 100%; }
+  .js-ready .nav-links { display: none !important; }
+  .js-ready .nav-links.is-open { display: flex !important; }
+  .nav-links > a, .nav-links > form { margin: .25rem 0; }
+}
+@media (max-width: 575px) {
+  .table > :not(caption) > * > * { padding: .75rem; }
+  .nav-links { align-items: stretch !important; flex-direction: column; }
+  .nav-links a, .nav-links button { text-align: left; }
+  .nav-links button { width: 100%; }
+  .feature-card.p-md-5 { padding: 1.25rem !important; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }

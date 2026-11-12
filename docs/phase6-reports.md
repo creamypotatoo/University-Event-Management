@@ -1,5 +1,7 @@
 # Phase 6: expense management, financial reporting, and analytics
 
+Final Phase 7 QA retains these monetary/query/CSV rules, improves expense-field error associations, and renders safe 503 recovery pages without reloading the database user. Server-side expense deletion confirmation is unchanged. See [final testing report](final-testing-report.md) and [demo guide](final-demo-guide.md). Historical verification at the end of this document refers to Phase 6 completion.
+
 Phase 5 was verified merged into main via PR #1 (`79cb0dd`), then main was updated with `git pull --ff-only origin main`. Work uses `feature/phase6-reports-expenses`. No Phase 7 functionality is added.
 
 ## Schema and data safety
