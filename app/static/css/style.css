@@ -1,0 +1,17 @@
+:root { --campus-green: #125b50; --campus-mint: #a9efd5; }
+body { color: #182d2a; background: #fafbf9; font-family: system-ui, sans-serif; }
+.brand-accent { color: var(--campus-mint); }
+.hero { background: var(--campus-green); color: white; }
+.hero-description { max-width: 42rem; color: #e0eee8; }
+.feature-card { background: white; border: 1px solid #dce4df; border-radius: 1rem; }
+.feature-number { color: var(--campus-green); font-weight: 700; }
+.skip-link { position: absolute; top: -5rem; left: 1rem; z-index: 100; padding: .75rem; background: white; }
+.skip-link:focus { top: 1rem; }
+a:focus-visible { outline: 3px solid #e6ad16; outline-offset: 4px; }
+.auth-card { max-width: 48rem; }
+.club-description { white-space: pre-line; }
+.login-card { max-width: 32rem; }
+.btn-campus { background: var(--campus-green); color: white; }
+.btn-campus:hover, .btn-campus:focus-visible { background: #0b433b; color: white; }
+.form-control:focus { border-color: var(--campus-green); box-shadow: 0 0 0 .2rem #125b5026; }
+@media (max-width: 575px) { .navbar .small { display: none; } .hero .display-4 { font-size: 2.5rem; } }

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Welcome{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="container py-5">
+    <span class="badge rounded-pill text-bg-light mb-4">YOUR CAMPUS. YOUR COMMUNITY.</span>
+    <h1 class="display-4 fw-bold">Find your people.<br>Make things happen.</h1>
+    <p class="lead mt-4 hero-description">A shared home for university clubs, campus events, and the experiences that bring students together.</p>
+    <a class="btn btn-light btn-lg mt-2" href="#explore">Explore the platform <span aria-hidden="true">&rarr;</span></a>
+  </div>
+</section>
+<section class="container py-5" id="explore" aria-labelledby="explore-title">
+  <p class="text-uppercase text-secondary small fw-bold">Built for campus life</p>
+  <h2 id="explore-title" class="mb-4">One place to get involved</h2>
+  <div class="row g-4">
+    {% for number, title, description in [
+      ('01', 'Discover clubs', 'Connect with communities that share your interests and explore new ones.'),
+      ('02', 'Experience events', 'Discover campus activities and plan your next university experience.'),
+      ('03', 'Bring ideas to life', 'Give club organizers a shared space for events, venues, and expenses.')
+    ] %}
+    <div class="col-md-4">
+      <article class="feature-card h-100 p-4">
+        <span class="feature-number">{{ number }}</span>
+        <h3 class="h5 mt-3">{{ title }}</h3>
+        <p class="text-secondary mb-0">{{ description }}</p>
+      </article>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="alert alert-light border mt-4 mb-0" role="note">
+    <strong>Foundation preview.</strong> Student accounts, clubs, memberships, and venues are ready to explore. Event registration will arrive in a later project phase.
+  </div>
+</section>
+{% endblock %}

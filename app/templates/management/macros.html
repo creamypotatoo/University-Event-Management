@@ -1,0 +1,17 @@
+{% macro pager(pagination) %}
+{% if pagination.pages > 1 %}
+<nav aria-label="Results pages" class="d-flex gap-3 align-items-center flex-wrap my-4">
+  {% if pagination.has_prev %}<a class="btn btn-outline-secondary" href="{{ page_url(pagination.prev_num) }}">Previous</a>{% endif %}
+  <span class="text-secondary">Page {{ pagination.page }} of {{ pagination.pages }} · {{ pagination.total }} results</span>
+  {% if pagination.has_next %}<a class="btn btn-outline-secondary" href="{{ page_url(pagination.next_num) }}">Next</a>{% endif %}
+</nav>
+{% endif %}
+{% endmacro %}
+{% macro status_badge(active) %}<span class="badge {{ 'text-bg-success' if active else 'text-bg-secondary' }}">{{ 'Active' if active else 'Inactive' }}</span>{% endmacro %}
+{% macro search(q, statuses=none, selected='') %}
+<form method="get" class="row g-2 mb-4" role="search">
+  <div class="col-sm"><label for="q" class="form-label">Search</label><input type="search" class="form-control" name="q" id="q" value="{{ q }}" maxlength="150" placeholder="Search by name or details"></div>
+  {% if statuses %}<div class="col-sm-3"><label for="status" class="form-label">Status</label><select class="form-select" id="status" name="status">{% for value in statuses %}<option value="{{ value }}" {% if selected == value %}selected{% endif %}>{{ value|capitalize }}</option>{% endfor %}</select></div>{% endif %}
+  <div class="col-sm-auto align-self-end"><button class="btn btn-campus" type="submit">Search</button></div>
+</form>
+{% endmacro %}

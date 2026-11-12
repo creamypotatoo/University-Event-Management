@@ -1,0 +1,8 @@
+{% extends 'dashboards/layout.html' %}
+{% block title %}{{ club.club_name }}{% endblock %}
+{% block heading %}{{ club.club_name }}{% endblock %}
+{% block dashboard_content %}
+<section class="feature-card p-4"><h2 class="h5">Club overview</h2><p>{{ club.description }}</p>
+<div class="d-flex gap-2 flex-wrap"><a class="btn btn-campus" href="{{ url_for('management.club_edit', club_id=club.club_id) }}">Edit club</a><a class="btn btn-outline-secondary" href="{{ url_for('management.club_members', club_id=club.club_id) }}">Manage members</a></div>
+<p class="text-secondary mt-3 mb-0">Event and expense management will be available in later phases.</p></section>
+{% endblock %}

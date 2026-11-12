@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% from 'management/macros.html' import pager, search with context %}
+{% block title %}Venue directory{% endblock %}
+{% block content %}
+<section class="container py-5"><div class="d-flex gap-3 justify-content-between align-items-center mb-3"><h1 class="h2 mb-0">Campus venues</h1>{% if current_user.is_authenticated and current_user.role == 'system_admin' %}<a class="btn btn-campus" href="{{ url_for('management.venue_create') }}">Create venue</a>{% endif %}</div><p class="text-secondary">Explore university spaces and their capacity.</p>
+{{ search(q) }}
+<div class="table-responsive feature-card"><table class="table align-middle mb-0"><caption class="px-3">University venues</caption><thead><tr><th scope="col">Venue</th><th scope="col">Location</th><th scope="col">Capacity</th>{% if current_user.is_authenticated and current_user.role == 'system_admin' %}<th scope="col">Action</th>{% endif %}</tr></thead><tbody>
+{% for venue in pagination.items %}<tr><td>{{ venue.venue_name }}</td><td>{{ venue.location }}</td><td>{{ venue.capacity }}</td>{% if current_user.is_authenticated and current_user.role == 'system_admin' %}<td><a class="btn btn-sm btn-outline-secondary" href="{{ url_for('management.venue_edit', venue_id=venue.venue_id) }}">Edit venue</a></td>{% endif %}</tr>{% else %}<tr><td colspan="4" class="p-4 text-secondary">No venues match your search.</td></tr>{% endfor %}
+</tbody></table></div>{{ pager(pagination) }}</section>
+{% endblock %}

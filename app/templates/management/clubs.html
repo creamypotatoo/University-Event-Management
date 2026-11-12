@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% from 'management/macros.html' import pager, search, status_badge with context %}
+{% block title %}Club directory{% endblock %}
+{% block content %}
+<section class="container py-5">
+  <div class="d-flex justify-content-between align-items-center gap-3 mb-3"><h1 class="h2 mb-0">Find your club</h1>{% if current_user.is_authenticated and current_user.role == 'system_admin' %}<a class="btn btn-campus" href="{{ url_for('management.club_create') }}">Create club</a>{% endif %}</div>
+  <p class="text-secondary">Discover communities and interests across campus.</p>
+  {{ search(q, ['active', 'inactive', 'all'], status) }}
+  <div class="row g-4">{% for club in pagination.items %}<div class="col-md-6 col-lg-4"><article class="feature-card p-4 h-100">
+    {{ status_badge(club.is_active) }}<h2 class="h5 mt-3"><a href="{{ url_for('management.club_detail', club_id=club.club_id) }}">{{ club.club_name }}</a></h2><p class="text-secondary text-break">{{ club.description|truncate(220) }}</p>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('management.club_detail', club_id=club.club_id) }}">View club</a>
+  </article></div>{% else %}<div class="col-12"><div class="feature-card p-4 text-secondary">No clubs match your search. Try another name or status.</div></div>{% endfor %}</div>
+  {{ pager(pagination) }}
+</section>
+{% endblock %}

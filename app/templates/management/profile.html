@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Student profile{% endblock %}
+{% block content %}
+<section class="container py-5"><div class="auth-card feature-card p-4 p-md-5 mx-auto">
+  <p class="text-uppercase small text-secondary fw-bold">Student profile</p><h1 class="h2">{{ student.user.full_name }}</h1>
+  <dl class="row mt-4">
+    {% for label, value in [('Email', student.user.email), ('Student number', student.student_number), ('Department', student.department), ('Batch', student.batch), ('Account role', student.user.role.replace('_', ' '))] %}<dt class="col-sm-4">{{ label }}</dt><dd class="col-sm-8">{{ value }}</dd>{% endfor %}
+  </dl>
+  {% if current_user.role == 'student' and current_user.user_id == student.user_id %}
+  <a class="btn btn-campus" href="{{ url_for('management.profile_edit') }}">Edit profile</a>
+  <p class="form-text mt-3 mb-0">You can update your name, department, and batch. Contact university staff for changes to your student number or account email.</p>
+  {% else %}<a class="btn btn-outline-secondary" href="{{ url_for('management.students') }}">Back to students</a>{% endif %}
+</div></section>
+{% endblock %}

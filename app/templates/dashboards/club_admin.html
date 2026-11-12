@@ -1,0 +1,11 @@
+{% extends 'dashboards/layout.html' %}
+{% block title %}Club administrator dashboard{% endblock %}
+{% block heading %}Your assigned clubs{% endblock %}
+{% block dashboard_content %}
+<div class="row g-4">
+  {% for club in clubs %}<div class="col-md-6"><article class="feature-card p-4 h-100">
+    <h2 class="h5">{{ club.club_name }}</h2><p class="text-secondary">{{ club.description }}</p>
+    <a class="btn btn-campus" href="{{ url_for('dashboards.club_scope', club_id=club.club_id) }}">Open club dashboard</a>
+  </article></div>{% else %}<div class="col-12"><div class="feature-card p-4">You have no assigned clubs yet. Contact your system administrator for an assignment.</div></div>{% endfor %}
+</div>
+{% endblock %}

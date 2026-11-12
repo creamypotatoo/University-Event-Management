@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Log in{% endblock %}
+{% block content %}
+<section class="container py-5">
+  <div class="login-card mx-auto feature-card p-4 p-md-5">
+    <p class="text-uppercase text-secondary small fw-bold">Welcome back</p>
+    <h1 class="h2">Log in to CampusConnect</h1>
+    <p class="text-secondary">Your campus community is waiting.</p>
+    {% if error %}<div class="alert alert-danger" role="alert">{{ error }}</div>{% endif %}
+    <form method="post" action="{{ url_for('auth.login') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="next" value="{{ next_url }}">
+      <div class="mb-3">
+        <label class="form-label" for="email">Email address</label>
+        <input class="form-control" type="email" id="email" name="email" maxlength="254" autocomplete="username" required>
+      </div>
+      <div class="mb-4">
+        <label class="form-label" for="password">Password</label>
+        <input class="form-control" type="password" id="password" name="password" maxlength="128" autocomplete="current-password" required>
+      </div>
+      <button class="btn btn-campus w-100" type="submit">Log in</button>
+    </form>
+    <p class="mt-4 mb-0">New here? <a href="{{ url_for('auth.register') }}">Create a student account</a></p>
+  </div>
+</section>
+{% endblock %}

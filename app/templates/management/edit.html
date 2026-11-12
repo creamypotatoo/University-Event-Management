@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}{{ heading }}{% endblock %}
+{% block content %}
+<section class="container py-5"><div class="auth-card mx-auto feature-card p-4 p-md-5">
+  <h1 class="h2 mb-4">{{ heading }}</h1>
+  {% if errors %}<div class="alert alert-danger" role="alert">{{ errors.get('form', 'Please correct the highlighted fields.') }}</div>{% endif %}
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% for name, label, maximum in fields %}
+    <div class="mb-3">
+      <label class="form-label" for="{{ name }}">{{ label }}</label>
+      {% if name == 'description' %}<textarea class="form-control{% if name in errors %} is-invalid{% endif %}" id="{{ name }}" name="{{ name }}" maxlength="{{ maximum }}" rows="5" required {% if name in errors %}aria-invalid="true" aria-describedby="{{ name }}-error"{% endif %}>{{ values.get(name, '') }}</textarea>
+      {% else %}<input class="form-control{% if name in errors %} is-invalid{% endif %}" id="{{ name }}" name="{{ name }}" value="{{ values.get(name, '') }}" type="{{ 'number' if name == 'capacity' else 'text' }}" {% if name == 'capacity' %}min="1" max="2147483647" step="1"{% else %}maxlength="{{ maximum }}"{% endif %} required {% if name in errors %}aria-invalid="true" aria-describedby="{{ name }}-error"{% endif %}>{% endif %}
+      {% if name in errors %}<div id="{{ name }}-error" class="invalid-feedback">{{ errors[name] }}</div>{% endif %}
+    </div>
+    {% endfor %}
+    <div class="d-flex gap-2 mt-4"><button class="btn btn-campus" type="submit">Save changes</button><a class="btn btn-outline-secondary" href="{{ back }}">Cancel</a></div>
+  </form>
+</div></section>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'dashboards/layout.html' %}
+{% block title %}Student dashboard{% endblock %}
+{% block heading %}Your student dashboard{% endblock %}
+{% block dashboard_content %}
+<div class="row g-4">
+  <div class="col-md-6"><section class="feature-card p-4 h-100">
+    <h2 class="h5">Student profile</h2>
+    <dl class="mb-0"><dt>Student number</dt><dd>{{ current_user.student.student_number }}</dd><dt>Department</dt><dd>{{ current_user.student.department }}</dd><dt>Batch</dt><dd>{{ current_user.student.batch }}</dd></dl>
+    <a class="btn btn-campus mt-3" href="{{ url_for('management.profile') }}">View and edit profile</a>
+  </section></div>
+  <div class="col-md-6"><section class="feature-card p-4 h-100">
+    <h2 class="h5">Your campus journey</h2>
+    <p class="text-secondary">Explore university clubs and manage your memberships. Event sign-ups and participation history will arrive in later phases.</p>
+    <a class="btn btn-campus" href="{{ url_for('management.memberships') }}">My memberships</a>
+  </section></div>
+</div>
+{% endblock %}

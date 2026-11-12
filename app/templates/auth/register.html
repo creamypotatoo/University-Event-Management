@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Create a student account{% endblock %}
+{% block content %}
+<section class="container py-5">
+  <div class="auth-card mx-auto feature-card p-4 p-md-5">
+    <p class="text-uppercase text-secondary small fw-bold">Join your campus community</p>
+    <h1 class="h2">Create a student account</h1>
+    <p class="text-secondary">Use your university details to get started.</p>
+    {% if errors %}<div class="alert alert-danger" role="alert">{{ errors.get('form', 'Please correct the highlighted fields.') }}</div>{% endif %}
+    <form method="post" action="{{ url_for('auth.register') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="row g-3">
+        {% for name, label, maximum, autocomplete in [('full_name', 'Full name', 150, 'name'), ('email', 'Email address', 254, 'email'), ('student_number', 'Student number', 40, 'off'), ('department', 'Department', 100, 'organization'), ('batch', 'Batch', 30, 'off')] %}
+        <div class="{{ 'col-12' if name in ['full_name', 'email'] else 'col-md-6' }}">
+          <label class="form-label" for="{{ name }}">{{ label }}</label>
+          <input class="form-control{% if name in errors %} is-invalid{% endif %}" id="{{ name }}" name="{{ name }}" type="{{ 'email' if name == 'email' else 'text' }}" maxlength="{{ maximum }}" value="{{ values.get(name, '') }}" autocomplete="{{ autocomplete }}" required {% if name in errors %}aria-invalid="true" aria-describedby="{{ name }}-error"{% endif %}>
+          {% if name in errors %}<div id="{{ name }}-error" class="invalid-feedback">{{ errors[name] }}</div>{% endif %}
+        </div>
+        {% endfor %}
+        {% for name, label in [('password', 'Password'), ('confirm_password', 'Confirm password')] %}
+        <div class="col-md-6">
+          <label class="form-label" for="{{ name }}">{{ label }}</label>
+          <input class="form-control{% if name in errors %} is-invalid{% endif %}" type="password" id="{{ name }}" name="{{ name }}" minlength="12" maxlength="128" autocomplete="new-password" required aria-describedby="password-help{% if name in errors %} {{ name }}-error{% endif %}" {% if name in errors %}aria-invalid="true"{% endif %}>
+          {% if name in errors %}<div id="{{ name }}-error" class="invalid-feedback">{{ errors[name] }}</div>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      <p class="form-text" id="password-help">Use a passphrase of 12–128 characters. Student numbers use 3–40 letters, numbers, hyphens, underscores, or slashes.</p>
+      <button class="btn btn-campus w-100 mt-3" type="submit">Create student account</button>
+    </form>
+    <p class="mt-4 mb-0">Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a></p>
+  </div>
+</section>
+{% endblock %}

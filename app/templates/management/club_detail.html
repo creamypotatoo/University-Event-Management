@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% from 'management/macros.html' import status_badge with context %}
+{% block title %}{{ club.club_name }}{% endblock %}
+{% block content %}
+<section class="container py-5"><a href="{{ url_for('management.clubs') }}">← Club directory</a>
+  <article class="feature-card p-4 p-md-5 mt-3">{{ status_badge(club.is_active) }}<h1 class="h2 mt-3">{{ club.club_name }}</h1><p class="club-description text-break">{{ club.description }}</p>
+    {% if not club.is_active %}<div class="alert alert-secondary">This club is inactive. Its existing memberships and events are preserved. New memberships and reactivation are unavailable.</div>{% endif %}
+    <div class="d-flex gap-2 flex-wrap">
+    {% if current_user.is_authenticated and current_user.role == 'student' %}
+      {% if membership and membership.status == 'active' %}
+      <span class="badge text-bg-success align-self-center">You are a member</span>
+      <form method="post" action="{{ url_for('management.leave_club', club_id=club.club_id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-outline-danger" type="submit">Leave club</button></form>
+      {% elif club.is_active %}
+      <form method="post" action="{{ url_for('management.join_club', club_id=club.club_id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-campus" type="submit">{{ 'Rejoin club' if membership else 'Join club' }}</button></form>
+      {% endif %}
+    {% elif not current_user.is_authenticated %}<a class="btn btn-campus" href="{{ url_for('auth.login', next=url_for('management.club_detail', club_id=club.club_id)) }}">Log in to join</a>{% endif %}
+    {% if may_manage %}<a class="btn btn-campus" href="{{ url_for('management.club_edit', club_id=club.club_id) }}">Edit club</a><a class="btn btn-outline-secondary" href="{{ url_for('management.club_members', club_id=club.club_id) }}">Manage members</a>{% endif %}
+    {% if current_user.is_authenticated and current_user.role == 'system_admin' %}
+      <form method="post" action="{{ url_for('management.club_status', club_id=club.club_id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="status" value="{{ 'inactive' if club.is_active else 'active' }}"><button class="btn btn-outline-danger" type="submit">{{ 'Deactivate club' if club.is_active else 'Reactivate club' }}</button></form>
+    {% endif %}
+    </div>
+  </article>
+</section>
+{% endblock %}
